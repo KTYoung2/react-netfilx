@@ -2,7 +2,9 @@
 
 function Home() {
     return (
-        <div style={{backgroundColor:"black", height:"200vh"}}></div>
+        <div style={{ height:"200vh"}}>  
+            <h1>HOME</h1>
+        </div>
         );
 }
 
