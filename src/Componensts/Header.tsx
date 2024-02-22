@@ -1,18 +1,17 @@
 import styled from "styled-components";
-import { motion } from "framer-motion";
+import { motion, useAnimation, useMotionValueEvent, useScroll } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useMatch } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
-const Nav = styled.nav`
+const Nav = styled(motion.nav)`
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: fixed;
   width: 100%;
   top: 0;
-  background-color: black;
   font-size: 14px;
   padding: 20px 60px;
   color: white;
@@ -81,6 +80,8 @@ const Input = styled(motion.input)`
   left: -180px;
 `;
 
+
+/* ---------------- Animation Variants --------------- */
 const logoVariants = {
   norma : {
     fillOpacity : 1,
@@ -93,14 +94,44 @@ const logoVariants = {
   },
 }
 
+const navVariants = {
+  top : { backgroundColor :  "rgba( 0, 0, 0, 0)" },
+  scroll : {backgroundColor :  "rgba( 0, 0, 0, 1)"}
+}
+
 
 function Header(){
   const [searchOpen , setSearchOpen ] = useState(false);
   const homeMatch = useMatch("/");
   const tvMatch = useMatch("tv");
-  const toggleSearch = () => setSearchOpen((prev)=> !prev);
+  const inputAimation = useAnimation();
+  const navAnimation = useAnimation();
+  const { scrollY } = useScroll();
+  const toggleSearch = () => {
+    if(searchOpen){
+      inputAimation.start({
+        scaleX:0,
+      });
+    } else {
+      inputAimation.start({
+        scaleX: 1,
+      });
+    }
+    setSearchOpen((prev)=> !prev)
+  };
+  useMotionValueEvent(scrollY, "change", ()=> {
+    if(scrollY.get() > 80) {
+      navAnimation.start("scroll")
+    } else {
+        navAnimation.start("top")
+    }
+  });
+
     return (
-        <Nav>
+        <Nav 
+          variants={navVariants}
+          animate={navAnimation}
+          initial="top">
         <Col>
           <Logo
             variants={logoVariants}
@@ -145,7 +176,7 @@ function Header(){
             </motion.svg>
             <Input 
               transition={{type : "linea"}}
-              animate={{ scaleX : searchOpen ? 1 : 0 }}
+              animate={ inputAimation}
               placeholder="Search for Movie ..." />
           </Search>
       </Col>
