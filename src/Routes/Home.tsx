@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import { IGetMoviesResult, getMovies } from "../api";
+import { IGetMovieRank, IGetMoviesResult, getMovies, getPopularMovies, getTopMovies } from "../api";
 import styled from "styled-components";
 import { makeImgPath } from "../utils";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
@@ -48,6 +48,12 @@ const Slider = styled.div`
     right: -50px;
 `;
 
+const HotSliderTitle = styled.h2`
+    position: relative;
+    top: -50px;
+    font-weight: bold;
+    font-size: 25px;
+`;
 
 
 const Box = styled(motion.div)<{bgPhoto:string}>`
@@ -131,6 +137,54 @@ const OverLay = styled(motion.div)`
     opacity: 0;
 `;
 
+const TopRank = styled.div`
+    position: relative;
+    display: flex;
+    top: 200px;
+    left: 50px;
+    right: -50px;
+`;
+
+const Rank = styled(motion.div)`
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    position: absolute;
+    width: 100%;
+`;
+
+const RankItem = styled(motion.div)<{bgPhoto?:string}>`
+    z-index: 2;
+    background-image: url(${(props)=> props.bgPhoto});
+    background-size: cover;
+    background-color: white;
+    background-position: center center;
+    width: 250px;
+    height: 300px;
+    &:first-child {
+        transform-origin: center left;
+    }
+    &:last-child {
+        transform-origin: center right;
+    }
+    cursor: pointer;
+`;
+
+const RankNum = styled.h1`
+    font-size: 200px;
+    font-weight: 800;
+    stroke-width: 1px #fff;
+    z-index: -1;
+`;
+
+const Populars = styled.div`
+    position: relative;
+    display: flex;
+    top: 600px;
+    left: 50px;
+    right: -50px;
+`;
+
 const rowVariants = {
     hidden :{
         x : window.outerWidth +5,
@@ -176,13 +230,16 @@ function Home() {
     const movieHistory = useNavigate();
     const moviePathMath = useMatch("/movies/:id"); 
     const { scrollY } = useScroll();
-    const { isLoading, data } = useQuery<IGetMoviesResult>(["movies", "nowPlaying"], getMovies);
+    const { isLoading : nowPlayingLoading, data:playingData } = useQuery<IGetMoviesResult>(["movies", "nowPlaying"], getMovies);
+    const { isLoading : topRatedLoading, data: topData} = useQuery<IGetMovieRank>(["movies", "topRated"], getTopMovies);
+    const { isLoading :popularLoading, data:popularData } =useQuery<IGetMovieRank>(["movies", "popular"], getPopularMovies);
+    const isLoading = nowPlayingLoading || topRatedLoading || popularLoading;
     const [index , setIndex] = useState(0);
     const incraseIndex = () => {
-    if (data) {
+    if (playingData) {
         if(leaving) return;
         toggleLeaving();
-        const totalMovies = data?.results.length -1;
+        const totalMovies = playingData?.results.length -1;
         const maxIndex = Math.floor( totalMovies / offset);
         setIndex((prev)=> prev === maxIndex ? 0 : prev + 1);
     };
@@ -193,18 +250,19 @@ function Home() {
         movieHistory(`/movies/${movieId}`);
     }
     const overlayClick = () => movieHistory("/");
-    const movieClick = moviePathMath?.params.id && data?.results.find((movie) => movie.id + "" === moviePathMath.params.id);
+    const movieClick = moviePathMath?.params.id && playingData?.results.find((movie) => movie.id + "" === moviePathMath.params.id);
     return (
         <Wrapper>
             {isLoading ? ( 
                 <Loader> Loading ... </Loader> 
             )  : ( 
                 <>
-                    <Banner onClick={incraseIndex} bgPhoto={makeImgPath(data?.results[0].backdrop_path || "")}>
-                        <Title>{data?.results[0].title}</Title>
-                        <Overview>{data?.results[0].overview}</Overview>
+                    <Banner onClick={incraseIndex} bgPhoto={makeImgPath(playingData?.results[0].backdrop_path || "")}>
+                        <Title>{playingData?.results[0].title}</Title>
+                        <Overview>{playingData?.results[0].overview}</Overview>
                     </Banner>
                     <Slider>
+                        <HotSliderTitle>Popular Movies Now</HotSliderTitle>
                         <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
                             <Row
                                 variants={rowVariants} 
@@ -213,7 +271,7 @@ function Home() {
                                 exit="exit" 
                                 transition={{type:"tween", duration: 1}}
                                 key={index}>
-                                {data?.results
+                                {playingData?.results
                                     .slice(1)
                                     .slice(offset*index, offset*index+offset)
                                     .map((movie)=> (
@@ -260,6 +318,57 @@ function Home() {
                         </> 
                     ) : null }
                     </AnimatePresence>
+                    <>
+                    <TopRank>
+                    <HotSliderTitle>Top 5 Rated</HotSliderTitle>
+                        <Rank>
+                            <RankItem 
+                                bgPhoto={makeImgPath(topData?.results[0].backdrop_path as any, "w500")}> 
+                                 <RankNum>1</RankNum> 
+                                 {topData?.results[0].title}
+                                </RankItem>
+                            <RankItem  bgPhoto={makeImgPath(topData?.results[1].backdrop_path as any, "w500")}>
+                                <RankNum>2</RankNum>
+                                {topData?.results[1].title}
+                            </RankItem>
+                            <RankItem  bgPhoto={makeImgPath(topData?.results[2].backdrop_path as any, "w500")}>
+                            <RankNum>3</RankNum>
+                            {topData?.results[2].title}
+                            </RankItem>
+                            <RankItem  bgPhoto={makeImgPath(topData?.results[3].backdrop_path as any, "w500")}>
+                            <RankNum>4</RankNum>
+                                {topData?.results[3].title}
+                                </RankItem>
+                            <RankItem  bgPhoto={makeImgPath(topData?.results[4].backdrop_path as any, "w500")}>
+                            <RankNum>5</RankNum>
+                                {topData?.results[4].title}
+                                </RankItem>
+                        </Rank>
+                    </TopRank>
+                    </>
+                    <>
+                    <Populars>
+                    <HotSliderTitle>Popular Movies</HotSliderTitle>
+                        <Rank>
+                            <Box  
+                                bgPhoto={makeImgPath(popularData?.results[0].backdrop_path as any, "w500")}> 
+                                 {popularData?.results[0].title}
+                                </Box >
+                            <Box   bgPhoto={makeImgPath(popularData?.results[1].backdrop_path as any, "w500")}>
+                                {popularData?.results[1].title}
+                            </Box >
+                            <Box   bgPhoto={makeImgPath(popularData?.results[2].backdrop_path as any, "w500")}>
+                            {popularData?.results[2].title}
+                            </Box >
+                            <Box   bgPhoto={makeImgPath(popularData?.results[3].backdrop_path as any, "w500")}>
+                                {popularData?.results[3].title}
+                                </Box >
+                            <Box  bgPhoto={makeImgPath(popularData?.results[4].backdrop_path as any, "w500")}>
+                                {popularData?.results[4].title}
+                                </Box >
+                        </Rank>
+                    </Populars>
+                    </>
                 </>
             )}  
         </Wrapper>

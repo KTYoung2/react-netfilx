@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { motion, useAnimation, useMotionValueEvent, useScroll } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useMatch } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -131,10 +131,11 @@ function Header(){
         navAnimation.start("top")
     }
   });
+  const navigate = useNavigate();
   const { register, handleSubmit } = useForm<IForm>();
   const onValid = (data:IForm) => {
-
-  }
+    navigate(`/search?keyword=${data.keyword}`)
+  };
     return (
         <Nav 
           variants={navVariants}
