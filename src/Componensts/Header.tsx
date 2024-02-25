@@ -3,6 +3,7 @@ import { motion, useAnimation, useMotionValueEvent, useScroll } from "framer-mot
 import { Link } from "react-router-dom";
 import { useMatch } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 
 
 const Nav = styled(motion.nav)`
@@ -51,7 +52,7 @@ const Item = styled.li`
   }
 `;
 
-const Search = styled.span`
+const Search = styled.form`
   color: white;
   display: flex;
   align-items: center;
@@ -100,6 +101,10 @@ const navVariants = {
 }
 
 
+interface IForm {
+  keyword:string;
+}
+
 function Header(){
   const [searchOpen , setSearchOpen ] = useState(false);
   const homeMatch = useMatch("/");
@@ -126,7 +131,10 @@ function Header(){
         navAnimation.start("top")
     }
   });
+  const { register, handleSubmit } = useForm<IForm>();
+  const onValid = (data:IForm) => {
 
+  }
     return (
         <Nav 
           variants={navVariants}
@@ -159,7 +167,7 @@ function Header(){
           </Items>
         </Col>
         <Col>
-          <Search>
+          <Search onSubmit={handleSubmit(onValid)}>
             <motion.svg
               onClick={toggleSearch}
               animate={{x: searchOpen ? -210 : 0}}
@@ -175,6 +183,7 @@ function Header(){
               ></path>
             </motion.svg>
             <Input 
+              {...register("keyword", {required : true, minLength: 2 })}
               transition={{type : "linea"}}
               animate={ inputAimation}
               placeholder="Search for Movie ..." />
