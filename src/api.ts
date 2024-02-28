@@ -29,6 +29,24 @@ export interface IGetMovieRank {
     results : IMovie[];
 }
 
+export interface IMoiveDetail {
+    id: number;
+    overview: string;
+    popularity: number;
+    tagline: string;
+    title: string;
+    backdrop_path: string;
+    genres: [
+      {
+        id: number;
+        name: string;
+      },
+    ],
+    release_date: string;
+    runtime: number;
+    
+}
+
 
 
 export function getMovies(){
@@ -36,12 +54,16 @@ export function getMovies(){
         (responce)=>responce.json());
 };
 
+export function getMovieDetail( id : string ){
+    return fetch(`${BASE_PATH}/movie/${id}?api_key=${API_KEY}`).then((req)=> req.json());
+};
+
 export function getTopMovies(){
     return fetch(`${BASE_PATH}/movie/top_rated?api_key=${API_KEY}`).then(
         (responce)=>responce.json());
 };
 
-export function getPopularMovies(){
-    return fetch(`${BASE_PATH}/movie/popular?api_key=${API_KEY}`).then(
+export function getCommingMovies(){
+    return fetch(`${BASE_PATH}/movie/upcoming?api_key=${API_KEY}`).then(
         (responce)=>responce.json());
 };

@@ -1,12 +1,13 @@
 import { useQuery } from "react-query";
-import { IGetMovieRank, IGetMoviesResult, getMovies, getPopularMovies, getTopMovies } from "../api";
+import { IGetMovieRank, IGetMoviesResult, getMovieDetail, getMovies, IMoiveDetail, getTopMovies, getCommingMovies } from "../api";
 import styled from "styled-components";
 import { makeImgPath } from "../utils";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { useState } from "react";
-import { useMatch, PathMatch, useNavigate } from "react-router-dom";
-
-
+import { useMatch, PathMatch, useNavigate, useParams } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import { faCircleXmark , faStar } from "@fortawesome/free-solid-svg-icons";
 const Wrapper = styled.div`
     background-color: black;
     padding-bottom: 200px;
@@ -111,12 +112,34 @@ const DetailCover = styled.div`
     background-position: center center;
 `;
 
+
 const DetailTitle = styled.h2`
     padding: 10px;
     position: relative;
-    top: -80px;
+    top: -400px;
     font-size: 46px;
-    color: ${(props)=> props.theme.white.lighter};
+    font-weight: bold;
+    color: ${(props)=> props.theme.white.darker};
+`;
+
+const DatailTagLine = styled.h3`
+    padding: 10px;
+    position: relative;
+    top: -130px;
+    font-size: 23px;
+    color: ${(props)=> props.theme.white.darker};
+`;
+
+const  DatailDate = styled.h3`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding: 10px;
+    position: relative;
+    top: -100px;
+    color: ${(props)=> props.theme.white.darker};
+    font-weight: bold;
+    font-size: 20px;
 `;
 
 const DatailOverLay = styled.p`
@@ -124,7 +147,8 @@ const DatailOverLay = styled.p`
     color: ${(props)=> props.theme.white.lighter};
     position: relative;
     font-size: 20px;
-    top: -70px;
+    top: -150px;
+
 `;
 
 
@@ -145,16 +169,16 @@ const TopRank = styled.div`
     right: -50px;
 `;
 
+
 const Rank = styled(motion.div)`
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, 2fr);
     gap: 5px;
     position: absolute;
     width: 100%;
 `;
 
 const RankItem = styled(motion.div)<{bgPhoto?:string}>`
-    z-index: 2;
     background-image: url(${(props)=> props.bgPhoto});
     background-size: cover;
     background-color: white;
@@ -174,7 +198,6 @@ const RankNum = styled.h1`
     font-size: 200px;
     font-weight: 800;
     stroke-width: 1px #fff;
-    z-index: -1;
 `;
 
 const Populars = styled.div`
@@ -222,18 +245,22 @@ const infoVariants = {
             type: "tween"
         }
     },
-}
+};
+
 
 const offset = 6;
 
 function Home() {
     const movieHistory = useNavigate();
     const moviePathMath = useMatch("/movies/:id"); 
+    const { id } = useParams();
     const { scrollY } = useScroll();
     const { isLoading : nowPlayingLoading, data:playingData } = useQuery<IGetMoviesResult>(["movies", "nowPlaying"], getMovies);
     const { isLoading : topRatedLoading, data: topData} = useQuery<IGetMovieRank>(["movies", "topRated"], getTopMovies);
-    const { isLoading :popularLoading, data:popularData } =useQuery<IGetMovieRank>(["movies", "popular"], getPopularMovies);
-    const isLoading = nowPlayingLoading || topRatedLoading || popularLoading;
+    const { isLoading : commLoading, data: commData} = useQuery<IGetMovieRank>(["movies", "comming"], getCommingMovies);
+    const { isLoading : detailLoading, data: detailData} = useQuery<IMoiveDetail>(["movies", id], ()=> getMovieDetail(id!));
+    console.log(detailData);
+    const isLoading = nowPlayingLoading || topRatedLoading || commLoading ||  detailLoading ;
     const [index , setIndex] = useState(0);
     const incraseIndex = () => {
     if (playingData) {
@@ -284,10 +311,11 @@ function Home() {
                                         initial="nomal"
                                         transition={{type:"tween"}}
                                         bgPhoto={makeImgPath(movie.backdrop_path, "w500")}
-                                    >
-                                    <Info variants={infoVariants}>
+                                    > {movie.title}
+                                        <Info
+                                            variants={infoVariants}>
                                         <h4>{movie.title}</h4>
-                                    </Info>
+                                        </Info>
                                     </ Box>
                                     ))}
                             </Row>
@@ -296,11 +324,13 @@ function Home() {
                     <AnimatePresence>
                     { moviePathMath ? (
                         <>
-                        <OverLay animate={{opacity : 1}} exit={{opacity : 0}} onClick={overlayClick}/>
+                        <OverLay animate={{opacity : 1}} exit={{opacity : 0}} onClick={overlayClick}
+                        />
                         <MoiveDetail 
                             layoutId={moviePathMath.params.id} 
                             style={{top : scrollY.get() + 100 }}
                         >
+                        <FontAwesomeIcon style={{ position: "absolute", fontSize: 40, top: 10, left: 700}} icon={faCircleXmark} />
                         { movieClick && <>
                             <DetailCover 
                                 style={{
@@ -311,6 +341,12 @@ function Home() {
                                 }}
                             />
                             <DetailTitle>{movieClick.title}</DetailTitle>
+                            <DatailTagLine>{detailData?.tagline}</DatailTagLine>
+                            <DatailDate style={{color:"rgb(69, 211, 105)"}}>
+                            {detailData?.popularity.toFixed(1)} % rating</DatailDate>
+                            <DatailDate>{detailData?.release_date}</DatailDate>
+                            <span>{detailData?.genres.map((g)=> (<p>{g.name}</p>))}</span>
+                            <DatailOverLay>RUNTIME : {detailData?.runtime}</DatailOverLay>
                             <DatailOverLay>{movieClick.overview}</DatailOverLay>
                             </>
                             }
@@ -320,7 +356,7 @@ function Home() {
                     </AnimatePresence>
                     <>
                     <TopRank>
-                    <HotSliderTitle>Top 5 Rated</HotSliderTitle>
+                    <HotSliderTitle>Top 10 Movies</HotSliderTitle>
                         <Rank>
                             <RankItem 
                                 bgPhoto={makeImgPath(topData?.results[0].backdrop_path as any, "w500")}> 
@@ -343,31 +379,81 @@ function Home() {
                             <RankNum>5</RankNum>
                                 {topData?.results[4].title}
                                 </RankItem>
+                                <RankItem  bgPhoto={makeImgPath(topData?.results[5].backdrop_path as any, "w500")}>
+                            <RankNum>6</RankNum>
+                                {topData?.results[5].title}
+                                </RankItem>
+                                <RankItem  bgPhoto={makeImgPath(topData?.results[6].backdrop_path as any, "w500")}>
+                            <RankNum>7</RankNum>
+                                {topData?.results[6].title}
+                                </RankItem>
+                                <RankItem  bgPhoto={makeImgPath(topData?.results[7].backdrop_path as any, "w500")}>
+                            <RankNum>8</RankNum>
+                                {topData?.results[7].title}
+                                </RankItem>
+                                <RankItem  bgPhoto={makeImgPath(topData?.results[8].backdrop_path as any, "w500")}>
+                            <RankNum>9</RankNum>
+                                {topData?.results[8].title}
+                                </RankItem>
+                                <RankItem  bgPhoto={makeImgPath(topData?.results[9].backdrop_path as any, "w500")}>
+                            <RankNum>10</RankNum>
+                                {topData?.results[9].title}
+                                </RankItem>    
                         </Rank>
                     </TopRank>
                     </>
                     <>
-                    <Populars>
-                    <HotSliderTitle>Popular Movies</HotSliderTitle>
-                        <Rank>
-                            <Box  
-                                bgPhoto={makeImgPath(popularData?.results[0].backdrop_path as any, "w500")}> 
-                                 {popularData?.results[0].title}
-                                </Box >
-                            <Box   bgPhoto={makeImgPath(popularData?.results[1].backdrop_path as any, "w500")}>
-                                {popularData?.results[1].title}
-                            </Box >
-                            <Box   bgPhoto={makeImgPath(popularData?.results[2].backdrop_path as any, "w500")}>
-                            {popularData?.results[2].title}
-                            </Box >
-                            <Box   bgPhoto={makeImgPath(popularData?.results[3].backdrop_path as any, "w500")}>
-                                {popularData?.results[3].title}
-                                </Box >
-                            <Box  bgPhoto={makeImgPath(popularData?.results[4].backdrop_path as any, "w500")}>
-                                {popularData?.results[4].title}
-                                </Box >
-                        </Rank>
-                    </Populars>
+                    <Slider style={{top : 850}}>
+                        <HotSliderTitle>UpComming Movies </HotSliderTitle>
+                        <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+                                <Row>
+                                    <Box bgPhoto={makeImgPath(commData?.results[0].backdrop_path as any, "w500")}>
+                                    <Info >{commData?.results[0].title}</Info>
+                                    </Box>
+                            </Row>
+                            <Row>
+                                    <Box bgPhoto={makeImgPath(commData?.results[1].backdrop_path as any, "w500")}>
+                                    <Info >{commData?.results[1].title}</Info>
+                                    </Box>
+                            </Row>
+                            <Row>
+                                    <Box bgPhoto={makeImgPath(commData?.results[2].backdrop_path as any, "w500")}>
+                                    <Info >{commData?.results[2].title}</Info>
+                                    </Box>
+                            </Row>
+                            <Row>
+                                    <Box bgPhoto={makeImgPath(commData?.results[3].backdrop_path as any, "w500")}>
+                                    <Info >{commData?.results[0].title}</Info>
+                                    </Box>
+                            </Row>
+                            <Row>
+                                    <Box bgPhoto={makeImgPath(commData?.results[4].backdrop_path as any, "w500")}>
+                                    <Info >{commData?.results[0].title}</Info>
+                                    </Box>
+                            </Row>
+                            <Row>
+                                    <Box bgPhoto={makeImgPath(commData?.results[5].backdrop_path as any, "w500")}>
+                                    <Info >{commData?.results[0].title}</Info>
+                                    </Box>
+                            </Row>
+                            <Row>
+                                    <Box bgPhoto={makeImgPath(commData?.results[6].backdrop_path as any, "w500")}>
+                                    <Info >{commData?.results[0].title}</Info>
+                                    </Box>
+                            </Row>
+                            <Row>
+                                    <Box bgPhoto={makeImgPath(commData?.results[7].backdrop_path as any, "w500")}>
+                                    <Info >{commData?.results[0].title}</Info>
+                                    </Box>
+                            </Row>
+                            <Row>
+                                    <Box bgPhoto={makeImgPath(commData?.results[8].backdrop_path as any, "w500")}>
+                                    <Info >{commData?.results[0].title}</Info>
+                                    </Box>
+                            </Row>
+                        </AnimatePresence>
+                    </Slider>
+                    
                     </>
                 </>
             )}  
