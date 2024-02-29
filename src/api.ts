@@ -42,6 +42,11 @@ export interface IMoiveDetail {
         name: string;
       },
     ],
+    production_countries: [
+        {
+          iso_3166_1: string,
+        }
+      ],
     release_date: string;
     runtime: number;
     
