@@ -1,13 +1,13 @@
 import { useQuery } from "react-query";
-import { IGetMovieRank, IGetMoviesResult, getMovieDetail, getMovies, IMoiveDetail, getTopMovies, getCommingMovies } from "../api";
+import { IGetMovieRank, IGetMoviesResult, getMovieDetail, getMovies, IMoiveDetail, getTopMovies, getCommingMovies} from "../api";
 import styled from "styled-components";
 import { makeImgPath } from "../utils";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { useState } from "react";
-import { useMatch, PathMatch, useNavigate, useParams } from "react-router-dom";
+import { useMatch, useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { faCircleXmark , faPlay , faCircleInfo, faMedal, faCirclePlus} from "@fortawesome/free-solid-svg-icons";
+import { faCircleXmark , faPlay , faCircleInfo, faMedal } from "@fortawesome/free-solid-svg-icons";
+
 const Wrapper = styled.div`
     background-color: black;
     padding-bottom: 200px;
@@ -54,7 +54,7 @@ const MoviRank = styled.p`
 
 `
 
-const OverviewBtn = styled.button`
+const OverviewBtn = styled(motion.button)`
     border: none;
     background-color: ${(props)=>props.theme.white.lighter};
     color : ${(props)=>props.theme.black.lighter};
@@ -63,6 +63,7 @@ const OverviewBtn = styled.button`
     border-radius: 5px;
     font-size: 20px;
     font-weight: bold;
+    text-align: center;
     cursor: pointer;
     &:hover {
         background-color: rgb(255, 255, 255, 0.5);
@@ -317,6 +318,8 @@ const infoVariants = {
     },
 };
 
+
+
 const offset = 6;
 
 function Home() {
@@ -347,34 +350,38 @@ function Home() {
     }
     const overlayClick = () => movieHistory("/");
     const movieClick = moviePathMath?.params.id && playingData?.results.find((movie) => movie.id + "" === moviePathMath.params.id);
-    
-
     return (
         <Wrapper>
             {isLoading ? ( 
                 <Loader> Loading ... </Loader> 
             )  : ( 
                 <>
-                    <Banner onClick={incraseIndex} bgPhoto={makeImgPath(playingData?.results[0].backdrop_path || "")}>
+                    <Banner bgPhoto={makeImgPath(playingData?.results[0].backdrop_path || "")}>
                         <Title>{playingData?.results[0].title}</Title>
                         <MoviRank><FontAwesomeIcon icon={faMedal} style={{ color : "rgb(229, 9, 20)", paddingRight: 5}}/> 
                             popular movies today
                         </MoviRank>
+                         <AnimatePresence>
                         <Overview>{playingData?.results[0].overview}</Overview>
-                        <div style={{ display:"flex", justifyContent: "flex-start"}}>
+                        <div style={{ display:"flex", justifyContent: "flex-start", position:"relative", top:20}}>
                             <OverviewBtn>
                             <FontAwesomeIcon icon={faPlay} style={{fontSize: 20, paddingRight:10}}/>
                                 Play
                             </OverviewBtn>
-                            <OverviewBtn>
-                            <FontAwesomeIcon icon={faCircleInfo}  style={{fontSize: 20, paddingRight:10}}/>
-                                More
-                            </OverviewBtn>
                         </div>
+                        <div style={{ display:"flex", justifyContent: "flex-start", position:"relative", top:-30, left: 170}}>
+                            <OverviewBtn 
+                                onClick={()=> boxClick(playingData?.results[0].id!)}>
+                            <FontAwesomeIcon icon={faCircleInfo}  style={{fontSize: 20, paddingRight:10}}/>
+                                More Info
+                            </OverviewBtn> 
+                        </div>
+                        </AnimatePresence>
                     </Banner>
                     <Slider>
                         <HotSliderTitle>Popular Movies Now</HotSliderTitle>
                         <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+                        <button onClick={incraseIndex}> next </button>
                             <Row
                                 variants={rowVariants} 
                                 initial="hidden" 
@@ -412,10 +419,16 @@ function Home() {
                         <OverLay animate={{opacity : 1}} exit={{opacity : 0}} onClick={overlayClick}
                         />
                         <MoiveDetail 
+                            transition={{ type : "spring", damping : 10 }}
+                            initial={{ scale : 0}} 
+                            animate={{ scale : 1 }}
                             layoutId={moviePathMath.params.id} 
                             style={{top : scrollY.get() + 100 }}
                         >
-                        <FontAwesomeIcon onClick={overlayClick} style={{ position: "absolute", fontSize: 30, top: 10, left: 720, cursor:"pointer"}} icon={faCircleXmark} />
+                        <span  style={{ position: "absolute", fontSize: 30, top: 10, left: 720, cursor:"pointer"}} 
+                                 onClick={overlayClick} >
+                            <FontAwesomeIcon icon={faCircleXmark} />
+                        </span>
                         { movieClick && <>
                             <DetailCover 
                                 style={{
