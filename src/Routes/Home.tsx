@@ -6,7 +6,8 @@ import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { useState } from "react";
 import { useMatch, useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleXmark , faPlay , faCircleInfo, faMedal } from "@fortawesome/free-solid-svg-icons";
+import { faCircleXmark , faCircleInfo,faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import Banner from "../Componensts/Banner";
 
 const Wrapper = styled.div`
     background-color: black;
@@ -21,67 +22,61 @@ const Loader = styled.div`
     align-items: center;
 `;
 
-const Banner = styled.div<{ bgPhoto : string }>`
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 60px;
-    background-image: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,1)) , 
-                      url(${(props)=> props.bgPhoto});
-    background-size: cover;
-`;
-
-const Title = styled.h2`
-    font-size: 68px;
-    margin-bottom: 20px;
-    font-weight: bold;
-    text-shadow: 2px 2px 4px rgb(0, 0, 0, 0.5);
-`;
-
-const Overview = styled.p`
-    font-size: 20px;
-    width: 50%;
-    font-weight: bolder;
-    text-shadow: 2px 2px 4px rgb(0, 0, 0, 0.5);
-`;
-
-const MoviRank = styled.p`
-    font-size: 30px;
-    margin-bottom: 20px;
-    font-weight: bolder;
-    text-shadow: 2px 2px 4px rgb(0, 0, 0, 0.5);
-
-`
-
-const OverviewBtn = styled(motion.button)`
-    border: none;
-    background-color: ${(props)=>props.theme.white.lighter};
-    color : ${(props)=>props.theme.black.lighter};
-    width: 150px;
-    height: 50px;
-    border-radius: 5px;
-    font-size: 20px;
-    font-weight: bold;
-    text-align: center;
-    cursor: pointer;
-    &:hover {
-        background-color: rgb(255, 255, 255, 0.5);
-    } 
-`;
-
 
 const Slider = styled.div`
     position: relative;
-    top: -80px;
-    left: 50px;
+    top: -150px;
+    left: 20px;
     right: -50px;
+    z-index: 0;
 `;
+/*
+const MovieTitle = styled.p`
+    position: relative;
+    top: 160px;
+    font-size: 17px;
+    font-weight: bolder;
+    color: ${(props)=> props.theme.white.darker};
+    text-shadow: 2px 2px 4px rgb(0, 0, 0, 0.5);
+`;
+*/
+const SliderLeftBtn = styled.button`
+    border: none;
+    width: 50px;
+    height: 150px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: ${(props)=> props.theme.white.darker};
+    font-size: 35px;
+    z-index: 5;
+    position: relative;
+    top: 150px;
+    left: -10px;
+    cursor: pointer;
+`;
+
+
+
+const SliderRightBtn = styled.button`
+    border: none;
+    width: 50px;
+    height: 150px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: ${(props)=> props.theme.white.darker};
+    font-size: 35px;
+    z-index: 5;
+    position: relative;
+    top: 150px;
+    left: 1400px;
+    cursor: pointer;
+`;
+
+
+
 
 const HotSliderTitle = styled.h2`
     color: ${(props)=> props.theme.white.darker};
     position: relative;
-    top: -20px;
+    top: 100px;
     font-weight: bold;
     font-size: 25px;
     &:hover {
@@ -138,14 +133,14 @@ const InfoTitle = styled.h2`
 
 const MoiveDetail = styled(motion.div)`
     position: absolute;
-    width: 50vw;
+    width: 55vw;
     height: 100vh;
     border-radius: 20px;
     overflow: hidden;
     left: 0;
     right: 0;
     margin: 0 auto;
-    background-color: ${(props)=> props.theme.black.darker};
+    background-color: ${(props)=> props.theme.black.veryDark};
 `;
 
 const DetailCover = styled.div`
@@ -159,65 +154,53 @@ const DetailCover = styled.div`
 const DetailTitle = styled.h2`
     padding: 10px;
     position: relative;
-    top: -360px;
-    font-size: 46px;
+    top: -80px;
+    left: 350px;
+    font-size: 30px;
     font-weight: bold;
     color: ${(props)=> props.theme.white.darker};
     text-shadow: 2px 2px 4px rgb(0, 0, 0, 0.5);
 `;
 
-
-
-const  DatailDate = styled.h3`
-    text-align: left;
-    padding: 10px;
-    padding-left: 50px;
-    display: inline;
-    position: relative; 
-    top: -110px;
-    color: ${(props)=> props.theme.white.darker};
-    font-weight: bold;
-    font-size: 18px;
-`;
-
-const DatailThings = styled.h3`
-    text-align: right;
-    display: inline;
-    padding: 10px;
+const DetailImg = styled.img`
+    width: 300px;
+    height: 400px;
+    position: relative;
+    top: -150px;
+    left: 40px;
     padding-right: 20px;
+`
+const  DatailDate = styled.p`
+    display: flex;
     position: relative; 
-    top: -100px;
+    top: -440px;
     color: ${(props)=> props.theme.white.darker};
-    font-size: 18px;
+    font-size: 15px;
+    left: 350px;
+    padding-top: 5px;
 `;
 
-const DatailRunTime = styled.h3`
-    text-align: right;
-    padding: 10px;
-    padding-right: 10px;
-    position: relative; 
-    top: -100px;
+const  DatailTagLine = styled.h3`
     color: ${(props)=> props.theme.white.darker};
-    font-size: 18px;
-    span {
-        font-size: 18px;
-        color: ${(props)=> props.theme.black.lighter};
-    }
-
-`;
-
-
-
-const DatailOverLay = styled.p`
-    padding: 20px;
-    color: ${(props)=> props.theme.white.lighter};
     position: relative;
     font-size: 20px;
-    top: -150px;
-    text-align: center;
+    font-weight: 500;
+    top: -400px;
+    display: flex;
+    justify-content: center;
+    left: 70px;
 `;
 
-
+const DatailOverLay = styled.p`
+    color: ${(props)=> props.theme.white.darker};
+    position: relative;
+    font-size: 15px;
+    top: -370px;
+    left: 350px;
+    text-align: justify;
+    width: 450px;
+    height: 450px;
+`;
 
 const OverLay = styled(motion.div)`
     position: fixed;
@@ -239,7 +222,7 @@ const TopRank = styled.div`
 
 const Rank = styled(motion.div)`
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, 2fr);
     gap: 2px;
     position: absolute;
     width: 100%;
@@ -252,7 +235,8 @@ const Rank = styled(motion.div)`
 
 
 const RankItem = styled(motion.div)<{bgPhoto?:string}>`
-    z-index: 2;
+    position: relative;
+    z-index: 5;
     background-image: url(${(props)=> props.bgPhoto});
     background-size: cover;
     background-color: white;
@@ -270,29 +254,31 @@ const RankItem = styled(motion.div)<{bgPhoto?:string}>`
 `;
 
 const RankNum = styled.h1`
-    font-size: 220px;
+    font-size: 200px;
     font-weight: 800;
-    -webkit-text-stroke: 4px rgb(89, 89, 89);
+    -webkit-text-stroke: 3px ${(props)=> props.theme.white.darker};
     color: transparent;
     position: relative;
     left: -85px;
+    z-index: 0;
+    top: -20px;
 `;
 
 
 const rowVariants = {
-    hidden :{
+    hidden : {
         x : window.outerWidth +5,
     },
     visible : {
         x:0
     },
     exit: {
-        x:-window.outerWidth -5,
+        x: -window.outerWidth -5,
     },    
-}
+};
 
 
-const boxVariants = {
+const boxVariants  = {
     nomal : {
         scale :1,
     },
@@ -343,6 +329,16 @@ function Home() {
         setIndex((prev)=> prev === maxIndex ? 0 : prev + 1);
     };
 };
+    const prevIndex = ()=> {
+        if (playingData) {
+            if(leaving) return;
+            toggleLeaving();
+            const totalMovies = playingData?.results.length -1;
+            const maxIndex = Math.floor( totalMovies / offset);
+            setIndex((prev)=> prev === maxIndex ?  offset : prev - 1);
+        };
+    }
+
     const [leaving , setLeaving] = useState(false);
     const toggleLeaving = () => setLeaving((prev)=> !prev);
     const boxClick = (movieId:number) => {
@@ -356,32 +352,13 @@ function Home() {
                 <Loader> Loading ... </Loader> 
             )  : ( 
                 <>
-                    <Banner bgPhoto={makeImgPath(playingData?.results[0].backdrop_path || "")}>
-                        <Title>{playingData?.results[0].title}</Title>
-                        <MoviRank><FontAwesomeIcon icon={faMedal} style={{ color : "rgb(229, 9, 20)", paddingRight: 5}}/> 
-                            popular movies today
-                        </MoviRank>
-                         <AnimatePresence>
-                        <Overview>{playingData?.results[0].overview}</Overview>
-                        <div style={{ display:"flex", justifyContent: "flex-start", position:"relative", top:20}}>
-                            <OverviewBtn>
-                            <FontAwesomeIcon icon={faPlay} style={{fontSize: 20, paddingRight:10}}/>
-                                Play
-                            </OverviewBtn>
-                        </div>
-                        <div style={{ display:"flex", justifyContent: "flex-start", position:"relative", top:-30, left: 170}}>
-                            <OverviewBtn 
-                                onClick={()=> boxClick(playingData?.results[0].id!)}>
-                            <FontAwesomeIcon icon={faCircleInfo}  style={{fontSize: 20, paddingRight:10}}/>
-                                More Info
-                            </OverviewBtn> 
-                        </div>
-                        </AnimatePresence>
-                    </Banner>
+                    <Banner />           
                     <Slider>
                         <HotSliderTitle>Popular Movies Now</HotSliderTitle>
                         <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
-                        <button onClick={incraseIndex}> next </button>
+                        <SliderLeftBtn onClick={prevIndex}>
+                            <FontAwesomeIcon icon={faChevronLeft} />
+                        </SliderLeftBtn>
                             <Row
                                 variants={rowVariants} 
                                 initial="hidden" 
@@ -405,13 +382,16 @@ function Home() {
                                     >
                                     <Info  
                                         variants={infoVariants}>
-                                        <FontAwesomeIcon icon={faCircleInfo} style={{position: "absolute", top: -118, left: 220, fontSize: 20, cursor: "pointer"}}/>
+                                            <FontAwesomeIcon icon={faCircleInfo} style={{position: "absolute", top: -118, left: 220, fontSize: 20, cursor: "pointer"}}/>
                                         <InfoTitle>{movie.title}</InfoTitle>
                                         </Info>
                                     </ Box>
                                     ))}
                             </Row>
                         </AnimatePresence>
+                        <SliderRightBtn onClick={incraseIndex}>
+                            <FontAwesomeIcon icon={faChevronRight} />
+                        </SliderRightBtn>
                     </Slider>
                     <AnimatePresence>
                     { moviePathMath ? (
@@ -425,7 +405,7 @@ function Home() {
                             layoutId={moviePathMath.params.id} 
                             style={{top : scrollY.get() + 100 }}
                         >
-                        <span  style={{ position: "absolute", fontSize: 30, top: 10, left: 720, cursor:"pointer"}} 
+                        <span  style={{ position: "absolute", fontSize: 30, top: 10, left: 800, cursor:"pointer"}} 
                                  onClick={overlayClick} >
                             <FontAwesomeIcon icon={faCircleXmark} />
                         </span>
@@ -439,13 +419,16 @@ function Home() {
                                 }}
                             />
                             <DetailTitle>{movieClick.title}</DetailTitle>
-                            <DatailDate style={{color:"rgb(69, 211, 105)"}}>
-                            {detailData?.popularity.toFixed(1)} % rating</DatailDate>
-                            <DatailDate>{detailData?.production_countries.map((l)=> (<p>{l.iso_3166_1}</p>))}</DatailDate>
-                            <DatailDate>{detailData?.release_date}</DatailDate>
-                            <DatailRunTime ><span>Runtime</span>{detailData?.runtime} minute</DatailRunTime >
-                            <DatailThings ><span>Genres</span>{detailData?.genres.map((g)=> (<p>{g.name}</p>))}</DatailThings >
-                            <DatailOverLay>{movieClick.overview}</DatailOverLay>
+                            <DetailImg src={`https://image.tmdb.org/t/p/w500${detailData?.poster_path}`}/>
+                            <DatailDate>
+                            ·{detailData?.release_date} </DatailDate>
+                            <DatailDate> ·{detailData?.runtime} minute </DatailDate>
+                            <DatailDate> {detailData?.genres.map((g)=> (<p>·{g.name}</p>))}</DatailDate>
+                            <DatailTagLine> 
+                            「 {detailData?.tagline} 」
+                            </DatailTagLine>
+                            <DatailOverLay>   
+                            {movieClick.overview}</DatailOverLay>
                             </>
                             }
                         </MoiveDetail>
@@ -456,30 +439,28 @@ function Home() {
                     <TopRank>
                     <HotSliderTitle style={{top:-70}}>Top 10 Movies</HotSliderTitle>
                     <AnimatePresence>
-                        <Rank transition={{type:"tween", duration: 1}}>
-                            <RankItem variants={boxVariants}
-                                      whileHover="hover"
-                                      initial="nomal"
-                                      transition={{type:"tween"}}
-                                bgPhoto={makeImgPath(topData?.results[0].backdrop_path as any, "w500")}> 
-                                 <RankNum>1</RankNum> 
-                                 {topData?.results[0].title}
-                                </RankItem>
-                            <RankItem  bgPhoto={makeImgPath(topData?.results[1].backdrop_path as any, "w500")}>
-                                <RankNum>2</RankNum>
-                                {topData?.results[1].title}
-                            </RankItem>
-                            <RankItem  bgPhoto={makeImgPath(topData?.results[2].backdrop_path as any, "w500")}>
-                            <RankNum>3</RankNum>
-                            {topData?.results[2].title}
-                            </RankItem>
-                            <RankItem  bgPhoto={makeImgPath(topData?.results[3].backdrop_path as any, "w500")}>
-                            <RankNum>4</RankNum>
-                                {topData?.results[3].title}
-                                </RankItem>
-                            <RankItem  bgPhoto={makeImgPath(topData?.results[4].backdrop_path as any, "w500")}>
-                            <RankNum>5</RankNum>
-                            </RankItem> 
+                        <Rank>
+                        {topData?.results
+                                    .slice(1)
+                                    .slice(offset*index, offset*index+offset)
+                                    .map((movie)=> (
+                                    <RankItem 
+                                        layoutId={movie.id + ""}
+                                        onClick={()=> boxClick(movie.id)}
+                                        variants={boxVariants}
+                                        key={movie.id} 
+                                        whileHover="hover"
+                                        initial="nomal"
+                                        transition={{type:"tween"}}
+                                        bgPhoto={makeImgPath(movie.backdrop_path, "w500")}
+                                    ><RankNum>{}</RankNum>
+                                    <Info  
+                                        variants={infoVariants}>
+                                            <FontAwesomeIcon icon={faCircleInfo} style={{position: "absolute", top: -118, left: 220, fontSize: 20, cursor: "pointer"}}/>
+                                        <InfoTitle>{movie.title}</InfoTitle>
+                                        </Info>
+                                    </RankItem>
+                                ))}
                         </Rank>
                     </AnimatePresence>
                     </TopRank>

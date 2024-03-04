@@ -36,6 +36,7 @@ export interface IMoiveDetail {
     tagline: string;
     title: string;
     backdrop_path: string;
+    poster_path: string;
     genres: [
       {
         id: number;
@@ -72,3 +73,4 @@ export function getCommingMovies(){
     return fetch(`${BASE_PATH}/movie/upcoming?api_key=${API_KEY}`).then(
         (responce)=>responce.json());
 };
+
