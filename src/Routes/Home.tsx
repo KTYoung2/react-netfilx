@@ -30,16 +30,7 @@ const Slider = styled.div`
     right: -50px;
     z-index: 0;
 `;
-/*
-const MovieTitle = styled.p`
-    position: relative;
-    top: 160px;
-    font-size: 17px;
-    font-weight: bolder;
-    color: ${(props)=> props.theme.white.darker};
-    text-shadow: 2px 2px 4px rgb(0, 0, 0, 0.5);
-`;
-*/
+
 const SliderLeftBtn = styled.button`
     border: none;
     width: 50px;
@@ -213,8 +204,7 @@ const OverLay = styled(motion.div)`
 
 const TopRank = styled.div`
     position: relative;
-    display: flex;
-    top: 200px;
+    top: 160px;
     left: 50px;
     right: -50px;
 `;
@@ -222,18 +212,11 @@ const TopRank = styled.div`
 
 const Rank = styled(motion.div)`
     display: grid;
-    grid-template-columns: repeat(5, 2fr);
-    gap: 2px;
+    grid-template-columns: repeat(5, 1fr);
     position: absolute;
     width: 100%;
-    left: 50px;
-    right: -70px;
-    top: -13px;
 `;
   
-
-
-
 const RankItem = styled(motion.div)<{bgPhoto?:string}>`
     position: relative;
     z-index: 5;
@@ -253,17 +236,60 @@ const RankItem = styled(motion.div)<{bgPhoto?:string}>`
     cursor: pointer;
 `;
 
+
+const MovieTitle = styled.p`
+    position: relative;
+    top: 200px;
+    font-size: 17px;
+    font-weight: bolder;
+    color: ${(props)=> props.theme.white.darker};
+    text-align: center;
+`;
+
+
 const RankNum = styled.h1`
     font-size: 200px;
     font-weight: 800;
     -webkit-text-stroke: 3px ${(props)=> props.theme.white.darker};
     color: transparent;
     position: relative;
-    left: -85px;
+    left: -90px;
     z-index: 0;
-    top: -20px;
+    top: -30px;
 `;
 
+
+const Comming = styled.div`
+    position: relative;
+    top: 400px;
+    left: 20px;
+    right: -50px;
+`;
+
+
+const CBox = styled(motion.div)<{bgPhoto:string}>`
+    background-color: white;
+    background-image: url(${(props)=> props.bgPhoto});
+    background-size: cover;
+    background-position: center center;
+    width: 250px;
+    height: 150px;
+    border-radius: 5px;
+    &:first-child {
+        transform-origin: center left;
+    }
+    &:last-child {
+        transform-origin: center right;
+    }
+    cursor: pointer;
+`;
+
+const CRow = styled(motion.div)`
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    position: absolute;
+    width: 100%;
+`;
 
 const rowVariants = {
     hidden : {
@@ -345,7 +371,10 @@ function Home() {
         movieHistory(`/movies/${movieId}`);
     }
     const overlayClick = () => movieHistory("/");
-    const movieClick = moviePathMath?.params.id && playingData?.results.find((movie) => movie.id + "" === moviePathMath.params.id);
+    const PLAY =  moviePathMath?.params.id && playingData?.results.find((movie) => movie.id  + ""  === moviePathMath.params.id);
+    const TOP =  moviePathMath?.params.id && topData?.results.find((movie) => movie.id  + "" === moviePathMath.params.id);   
+    const COME =  moviePathMath?.params.id && commData?.results.find((movie) => movie.id  + "" === moviePathMath.params.id);   
+    const movieClick = PLAY || TOP || COME;                 
     return (
         <Wrapper>
             {isLoading ? ( 
@@ -409,7 +438,8 @@ function Home() {
                                  onClick={overlayClick} >
                             <FontAwesomeIcon icon={faCircleXmark} />
                         </span>
-                        { movieClick && <>
+                        { movieClick && 
+                         <>
                             <DetailCover 
                                 style={{
                                     backgroundImage: `linear-gradient(to top, black, transparent), url(${makeImgPath(
@@ -437,14 +467,56 @@ function Home() {
                     </AnimatePresence>
                     <>
                     <TopRank>
-                    <HotSliderTitle style={{top:-70}}>Top 10 Movies</HotSliderTitle>
-                    <AnimatePresence>
-                        <Rank>
-                        {topData?.results
+                    <HotSliderTitle style={{top:-30}}>Top 10 Movies</HotSliderTitle>
+                    <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+                        <Rank variants={rowVariants} 
+                                initial="hidden" 
+                                animate="visible" 
+                                exit="exit" 
+                                key={index}
+                                transition={{type:"tween", duration: 1}}
+                            >
+                            { topData?.results
+                                    .slice(1)
+                                    .slice( 5 * index, 5 * index + 5)
+                                    .map((topmovie)=> (
+                                    <RankItem
+                                        layoutId={topmovie.id + ""}
+                                        onClick={()=> boxClick(topmovie.id)}
+                                        variants={boxVariants}
+                                        key={topmovie.id} 
+                                        whileHover="hover"
+                                        initial="nomal"
+                                        transition={{type:"tween"}}
+                                        bgPhoto={makeImgPath(topmovie.backdrop_path, "w500")}
+                                    >
+                                    <MovieTitle>{topmovie.title}</MovieTitle>
+                                </RankItem>
+                                 ))}
+                        </Rank>
+                        <SliderRightBtn onClick={incraseIndex}>
+                            <FontAwesomeIcon icon={faChevronRight} />
+                        </SliderRightBtn>
+                    </AnimatePresence>
+                    </TopRank>
+                    </>
+                    <>
+                    <Comming>
+                        <HotSliderTitle style={{top:-60}}>UpComming Movies </HotSliderTitle>
+                        <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+                        <button onClick={incraseIndex}> mm</button>
+                             <CRow    
+                                variants={rowVariants} 
+                                initial="hidden" 
+                                animate="visible" 
+                                exit="exit" 
+                                transition={{type:"tween", duration: 1}}
+                                key={index}>
+                                {commData?.results
                                     .slice(1)
                                     .slice(offset*index, offset*index+offset)
                                     .map((movie)=> (
-                                    <RankItem 
+                                    <CBox 
                                         layoutId={movie.id + ""}
                                         onClick={()=> boxClick(movie.id)}
                                         variants={boxVariants}
@@ -453,70 +525,17 @@ function Home() {
                                         initial="nomal"
                                         transition={{type:"tween"}}
                                         bgPhoto={makeImgPath(movie.backdrop_path, "w500")}
-                                    ><RankNum>{}</RankNum>
+                                    >
                                     <Info  
                                         variants={infoVariants}>
                                             <FontAwesomeIcon icon={faCircleInfo} style={{position: "absolute", top: -118, left: 220, fontSize: 20, cursor: "pointer"}}/>
                                         <InfoTitle>{movie.title}</InfoTitle>
                                         </Info>
-                                    </RankItem>
-                                ))}
-                        </Rank>
-                    </AnimatePresence>
-                    </TopRank>
-                    </>
-                    <>
-                    <Slider style={{top : 850}}>
-                        <HotSliderTitle>UpComming Movies </HotSliderTitle>
-                        <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
-                                <Row>
-                                    <Box bgPhoto={makeImgPath(commData?.results[0].backdrop_path as any, "w500")}>
-                                    <Info >{commData?.results[0].title}</Info>
-                                    </Box>
-                            </Row>
-                            <Row>
-                                    <Box bgPhoto={makeImgPath(commData?.results[1].backdrop_path as any, "w500")}>
-                                    <Info >{commData?.results[1].title}</Info>
-                                    </Box>
-                            </Row>
-                            <Row>
-                                    <Box bgPhoto={makeImgPath(commData?.results[2].backdrop_path as any, "w500")}>
-                                    <Info >{commData?.results[2].title}</Info>
-                                    </Box>
-                            </Row>
-                            <Row>
-                                    <Box bgPhoto={makeImgPath(commData?.results[3].backdrop_path as any, "w500")}>
-                                    <Info >{commData?.results[0].title}</Info>
-                                    </Box>
-                            </Row>
-                            <Row>
-                                    <Box bgPhoto={makeImgPath(commData?.results[4].backdrop_path as any, "w500")}>
-                                    <Info >{commData?.results[0].title}</Info>
-                                    </Box>
-                            </Row>
-                            <Row>
-                                    <Box bgPhoto={makeImgPath(commData?.results[5].backdrop_path as any, "w500")}>
-                                    <Info >{commData?.results[0].title}</Info>
-                                    </Box>
-                            </Row>
-                            <Row>
-                                    <Box bgPhoto={makeImgPath(commData?.results[6].backdrop_path as any, "w500")}>
-                                    <Info >{commData?.results[0].title}</Info>
-                                    </Box>
-                            </Row>
-                            <Row>
-                                    <Box bgPhoto={makeImgPath(commData?.results[7].backdrop_path as any, "w500")}>
-                                    <Info >{commData?.results[0].title}</Info>
-                                    </Box>
-                            </Row>
-                            <Row>
-                                    <Box bgPhoto={makeImgPath(commData?.results[8].backdrop_path as any, "w500")}>
-                                    <Info >{commData?.results[0].title}</Info>
-                                    </Box>
-                            </Row>
+                                    </CBox>
+                                    ))}
+                             </CRow>
                         </AnimatePresence>
-                    </Slider>
-                    
+                    </Comming>
                     </>
                 </>
             )}  
