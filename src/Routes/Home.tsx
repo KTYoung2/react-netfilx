@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import { IGetMovieRank, IGetMoviesResult, getMovieDetail, getMovies, IMoiveDetail, getTopMovies, getCommingMovies} from "../api";
+import { IGetMovieRank, IGetMoviesResult, getMovieDetail, getMovies, IMoiveDetail, getTopMovies, getCommingMovies, getPopularMovies, getSimilarMovies, IMoiveSimilar} from "../api";
 import styled from "styled-components";
 import { makeImgPath } from "../utils";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
@@ -13,6 +13,7 @@ const Wrapper = styled.div`
     background-color: black;
     padding-bottom: 200px;
     width: 100vw;
+    height: 350vh;
 `;
 
 const Loader = styled.div`
@@ -25,7 +26,7 @@ const Loader = styled.div`
 
 const Slider = styled.div`
     position: relative;
-    top: -150px;
+    top: -180px;
     left: 20px;
     right: -50px;
     z-index: 0;
@@ -67,7 +68,7 @@ const SliderRightBtn = styled.button`
 const HotSliderTitle = styled.h2`
     color: ${(props)=> props.theme.white.darker};
     position: relative;
-    top: 100px;
+    top: 120px;
     font-weight: bold;
     font-size: 25px;
     &:hover {
@@ -122,10 +123,12 @@ const InfoTitle = styled.h2`
 `;
 
 
+
 const MoiveDetail = styled(motion.div)`
+    z-index: 10;
     position: absolute;
     width: 55vw;
-    height: 100vh;
+    height: 210vh;
     border-radius: 20px;
     overflow: hidden;
     left: 0;
@@ -202,9 +205,43 @@ const OverLay = styled(motion.div)`
     opacity: 0;
 `;
 
+
+const Similar = styled.div`
+    position: relative;
+    top: -550px;
+    left: 20px;
+    right: -20px;
+`;
+
+
+const SimilarMovie = styled(motion.div)`
+    display: grid;
+    grid-template-columns: repeat(3, 2fr);
+    row-gap: 10px;
+    position: absolute;
+    width: 100%;
+
+`;
+
+const SimilarItem = styled(motion.div)`
+    background-color: white;
+    color: black;
+    width: 250px;
+    height: 300px;
+    border-radius: 5px;
+    &:first-child {
+        transform-origin: center left;
+    }
+    &:last-child {
+        transform-origin: center right;
+    }
+    cursor: pointer;
+
+`;
+
 const TopRank = styled.div`
     position: relative;
-    top: 160px;
+    top: 60px;
     left: 50px;
     right: -50px;
 `;
@@ -224,7 +261,7 @@ const RankItem = styled(motion.div)<{bgPhoto?:string}>`
     background-size: cover;
     background-color: white;
     background-position: center center;
-    width: 150px;
+    width: 200px;
     height: 180px;
     border-radius: 5px;
     &:first-child {
@@ -239,15 +276,17 @@ const RankItem = styled(motion.div)<{bgPhoto?:string}>`
 
 const MovieTitle = styled.p`
     position: relative;
-    top: 200px;
-    font-size: 17px;
-    font-weight: bolder;
+    top: 120px;
+    font-size: 18px;
+    font-weight: bold;
     color: ${(props)=> props.theme.white.darker};
     text-align: center;
+    text-shadow: 2px 2px 4px rgb(0, 0, 0, 0.5);
 `;
 
 
 const RankNum = styled.h1`
+    display: flex;
     font-size: 200px;
     font-weight: 800;
     -webkit-text-stroke: 3px ${(props)=> props.theme.white.darker};
@@ -255,13 +294,13 @@ const RankNum = styled.h1`
     position: relative;
     left: -90px;
     z-index: 0;
-    top: -30px;
+    top: -190px;
 `;
 
 
 const Comming = styled.div`
     position: relative;
-    top: 400px;
+    top: 450px;
     left: 20px;
     right: -50px;
 `;
@@ -291,6 +330,40 @@ const CRow = styled(motion.div)`
     width: 100%;
 `;
 
+const Popular = styled.div`
+    position: relative;
+    top: 200px;
+    left: 20px;
+    right: -50px;
+    z-index: 0;
+`;
+
+const PBox = styled(motion.div)<{bgPhoto:string}>`
+    background-color: white;
+    background-image: url(${(props)=> props.bgPhoto});
+    background-size: cover;
+    background-position: center center;
+    width: 250px;
+    height: 150px;
+    border-radius: 5px;
+    &:first-child {
+        transform-origin: center left;
+    }
+    &:last-child {
+        transform-origin: center right;
+    }
+    cursor: pointer;
+`;
+
+const PRow = styled(motion.div)`
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    position: absolute;
+    width: 100%;
+`;
+
+
+
 const rowVariants = {
     hidden : {
         x : window.outerWidth +5,
@@ -306,6 +379,7 @@ const rowVariants = {
 
 const boxVariants  = {
     nomal : {
+        zIndex:10,
         scale :1,
     },
     hover : {
@@ -343,8 +417,9 @@ function Home() {
     const { isLoading : topRatedLoading, data: topData} = useQuery<IGetMovieRank>(["movies", "topRated"], getTopMovies);
     const { isLoading : commLoading, data: commData} = useQuery<IGetMovieRank>(["movies", "comming"], getCommingMovies);
     const { isLoading : detailLoading, data: detailData} = useQuery<IMoiveDetail>(["movies", id], ()=> getMovieDetail(id!));
-    console.log(detailData);
-    const isLoading = nowPlayingLoading || topRatedLoading || commLoading ||  detailLoading ;
+    const { isLoading : popularLoading , data: popularData } = useQuery<IGetMoviesResult>(["movies", "popular"], getPopularMovies);
+    const { isLoading : similarLoading , data: similarData } = useQuery<IMoiveSimilar>(["movies", id], ()=> getSimilarMovies(id!));
+    const isLoading = nowPlayingLoading || topRatedLoading || commLoading ||  detailLoading || popularLoading || similarLoading;
     const [index , setIndex] = useState(0);
     const incraseIndex = () => {
     if (playingData) {
@@ -370,11 +445,15 @@ function Home() {
     const boxClick = (movieId:number) => {
         movieHistory(`/movies/${movieId}`);
     }
+    const titleClick = (movieId:any) => {
+        movieHistory(`/movies/${movieId}`);
+    }
     const overlayClick = () => movieHistory("/");
     const PLAY =  moviePathMath?.params.id && playingData?.results.find((movie) => movie.id  + ""  === moviePathMath.params.id);
     const TOP =  moviePathMath?.params.id && topData?.results.find((movie) => movie.id  + "" === moviePathMath.params.id);   
     const COME =  moviePathMath?.params.id && commData?.results.find((movie) => movie.id  + "" === moviePathMath.params.id);   
-    const movieClick = PLAY || TOP || COME;                 
+    const POPULAR = moviePathMath?.params.id && popularData?.results.find((movie) => movie.id  + "" === moviePathMath.params.id);   
+    const movieClick = PLAY || TOP || COME || POPULAR;   
     return (
         <Wrapper>
             {isLoading ? ( 
@@ -383,7 +462,7 @@ function Home() {
                 <>
                     <Banner />           
                     <Slider>
-                        <HotSliderTitle>Popular Movies Now</HotSliderTitle>
+                        <HotSliderTitle  onClick={()=> titleClick(playingData?.results.find((movie) => movie.id))}>Now playing</HotSliderTitle>
                         <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
                         <SliderLeftBtn onClick={prevIndex}>
                             <FontAwesomeIcon icon={faChevronLeft} />
@@ -409,6 +488,7 @@ function Home() {
                                         transition={{type:"tween"}}
                                         bgPhoto={makeImgPath(movie.backdrop_path, "w500")}
                                     >
+                                    <MovieTitle>{movie.title}</MovieTitle>
                                     <Info  
                                         variants={infoVariants}>
                                             <FontAwesomeIcon icon={faCircleInfo} style={{position: "absolute", top: -118, left: 220, fontSize: 20, cursor: "pointer"}}/>
@@ -457,8 +537,15 @@ function Home() {
                             <DatailTagLine> 
                             「 {detailData?.tagline} 」
                             </DatailTagLine>
-                            <DatailOverLay>   
-                            {movieClick.overview}</DatailOverLay>
+                            <DatailOverLay>{movieClick.overview}</DatailOverLay>
+                            <HotSliderTitle style={{top:-620, textAlign:"center"}}>
+                            ━━━━━━━━━━━ Similar genre ━━━━━━━━━━━ 
+                            </HotSliderTitle>
+                            <Similar>
+                            <SimilarMovie>
+                            <SimilarItem>{similarData?.results[0].genre_ids.length !== 0 ? "dddd" : null }</SimilarItem>
+                            </SimilarMovie>
+                            </Similar>
                             </>
                             }
                         </MoiveDetail>
@@ -490,9 +577,14 @@ function Home() {
                                         transition={{type:"tween"}}
                                         bgPhoto={makeImgPath(topmovie.backdrop_path, "w500")}
                                     >
-                                    <MovieTitle>{topmovie.title}</MovieTitle>
+                                    <MovieTitle style={{top:140}}>{topmovie.title}</MovieTitle>
                                 </RankItem>
                                  ))}
+                                 <RankNum>1</RankNum>
+                                 <RankNum>2</RankNum>
+                                 <RankNum>3</RankNum>
+                                 <RankNum>4</RankNum>
+                                 <RankNum>5</RankNum>
                         </Rank>
                         <SliderRightBtn onClick={incraseIndex}>
                             <FontAwesomeIcon icon={faChevronRight} />
@@ -501,10 +593,46 @@ function Home() {
                     </TopRank>
                     </>
                     <>
+                    <Popular>
+                    <HotSliderTitle style={{top:-30}}>popular Movies </HotSliderTitle>
+                    <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+                    <PRow       variants={rowVariants} 
+                                initial="hidden" 
+                                animate="visible" 
+                                exit="exit" 
+                                key={index}
+                                transition={{type:"tween", duration: 1}}>
+                                {popularData?.results
+                                    .slice(1)
+                                    .slice(offset*index, offset*index+offset)
+                                    .map((movie)=> (
+                                    <PBox 
+                                        layoutId={movie.id + ""}
+                                        onClick={()=> boxClick(movie.id)}
+                                        variants={boxVariants}
+                                        key={movie.id} 
+                                        whileHover="hover"
+                                        initial="nomal"
+                                        transition={{type:"tween"}}
+                                        bgPhoto={makeImgPath(movie.backdrop_path, "w500")}
+                                    >
+                                    <MovieTitle>{movie.title}</MovieTitle>
+                                    <Info  
+                                        variants={infoVariants}>
+                                            <FontAwesomeIcon icon={faCircleInfo} style={{position: "absolute", top: -118, left: 220, fontSize: 20, cursor: "pointer"}}/>
+                                        <InfoTitle>{movie.title}</InfoTitle>
+                                        </Info>
+                                    </PBox>
+                                    ))}
+                             </PRow>
+                    </AnimatePresence>
+                    </Popular>
+                    </>
+                    <>
                     <Comming>
-                        <HotSliderTitle style={{top:-60}}>UpComming Movies </HotSliderTitle>
+                        <HotSliderTitle style={{top:-30}}>UpComming Movies </HotSliderTitle>
                         <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
-                        <button onClick={incraseIndex}> mm</button>
+                  
                              <CRow    
                                 variants={rowVariants} 
                                 initial="hidden" 
@@ -526,6 +654,7 @@ function Home() {
                                         transition={{type:"tween"}}
                                         bgPhoto={makeImgPath(movie.backdrop_path, "w500")}
                                     >
+                                        <MovieTitle>{movie.title}</MovieTitle>
                                     <Info  
                                         variants={infoVariants}>
                                             <FontAwesomeIcon icon={faCircleInfo} style={{position: "absolute", top: -118, left: 220, fontSize: 20, cursor: "pointer"}}/>

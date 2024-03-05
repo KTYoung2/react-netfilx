@@ -53,6 +53,23 @@ export interface IMoiveDetail {
     
 }
 
+export interface IMoiveSimilar {
+        results: [
+          {
+            genre_ids : [
+              number,
+              number,
+            ],
+            id: number;
+            overview: string;
+            poster_path: string;
+            release_date: string;
+            title: string;
+          },
+        ],
+}
+
+
 
 
 export function getMovies(){
@@ -74,3 +91,13 @@ export function getCommingMovies(){
         (responce)=>responce.json());
 };
 
+export function getPopularMovies(){
+    return fetch(`${BASE_PATH}/movie/popular?api_key=${API_KEY}`).then(
+        (responce)=>responce.json());
+};
+
+
+export function getSimilarMovies( id : string ){
+    return fetch(`${BASE_PATH}/movie/${id}/similar?api_key=${API_KEY}`).then(
+        (responce)=>responce.json());
+};

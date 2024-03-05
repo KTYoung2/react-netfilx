@@ -5,7 +5,7 @@ import { makeImgPath } from "../utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {  faPlay , faCircleInfo, faMedal } from "@fortawesome/free-solid-svg-icons";
-import { getMovies, IGetMoviesResult } from "../api";
+import {  getPopularMovies, IGetMoviesResult } from "../api";
 
 const BannerWrapper  = styled.div<{ bgPhoto : string }>`
     height: 100vh;
@@ -59,21 +59,21 @@ const OverviewBtn = styled(motion.button)`
 
 
 function Banner () {
-    const { isLoading : nowPlayingLoading, data:playingData } = useQuery<IGetMoviesResult>(["movies", "nowPlaying"], getMovies);
+    const { isLoading : popularLoading , data: popularData } = useQuery<IGetMoviesResult>(["movies", "popular"], getPopularMovies);
     const movieHistory = useNavigate();
     const boxClick = (movieId:number) => {
         movieHistory(`/movies/${movieId}`);
     };
 
     return (
-        <BannerWrapper  bgPhoto={makeImgPath(playingData?.results[0].backdrop_path || "")}>
-        <Title>{playingData?.results[0].title}</Title>
+        <BannerWrapper  bgPhoto={makeImgPath(popularData?.results[1].backdrop_path || "")}>
+        <Title>{popularData?.results[1].title}</Title>
         <MoviRank>
             <FontAwesomeIcon icon={faMedal} style={{ color : "rgb(229, 9, 20)", paddingRight: 5}}/> 
             popular movies today
         </MoviRank>
         <AnimatePresence>
-        <Overview>{playingData?.results[0].overview}</Overview>
+        <Overview>{popularData?.results[1].overview}</Overview>
         <div style={{ display:"flex", justifyContent: "flex-start", position:"relative", top:20}}>
             <OverviewBtn>
             <FontAwesomeIcon icon={faPlay} style={{fontSize: 20, paddingRight:10}}/>
@@ -82,7 +82,7 @@ function Banner () {
         </div>
         <div style={{ display:"flex", justifyContent: "flex-start", position:"relative", top:-30, left: 170}}>
             <OverviewBtn 
-                onClick={()=> boxClick(playingData?.results[0].id!)}>
+                onClick={()=> boxClick(popularData?.results[1].id!)}>
             <FontAwesomeIcon icon={faCircleInfo}  style={{fontSize: 20, paddingRight:10}}/>
                 More Info
             </OverviewBtn> 
