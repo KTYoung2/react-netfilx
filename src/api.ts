@@ -10,6 +10,8 @@ interface IMovie {
     poster_path : string;
     title : string;
     overview: string;
+    release_date: string;
+    popularity:number;
 }
 
 
@@ -53,22 +55,27 @@ export interface IMoiveDetail {
     
 }
 
-export interface IMoiveSimilar {
-        results: [
-          {
-            genre_ids : [
-              number,
-              number,
-            ],
-            id: number;
-            overview: string;
-            poster_path: string;
-            release_date: string;
-            title: string;
-          },
-        ],
+
+export interface ICredits {
+  id:number;
+  cast : [ 
+    {
+    character: string,
+    gender:number,
+    name: string,
+    profile_path: string,
+    },
+  ]
 }
 
+export interface ISimilar {
+  results : IMovie[];
+  gender: [
+    {
+      id: number;
+    },
+  ],
+}
 
 
 
@@ -101,3 +108,9 @@ export function getSimilarMovies( id : string ){
     return fetch(`${BASE_PATH}/movie/${id}/similar?api_key=${API_KEY}`).then(
         (responce)=>responce.json());
 };
+
+
+export function getCredits (id:string) {
+  return fetch(`${BASE_PATH}/movie/${id}/credits?api_key=${API_KEY}`).then(
+    (responce)=>responce.json());
+}

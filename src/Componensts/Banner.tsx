@@ -66,14 +66,14 @@ function Banner () {
     };
 
     return (
-        <BannerWrapper  bgPhoto={makeImgPath(popularData?.results[1].backdrop_path || "")}>
-        <Title>{popularData?.results[1].title}</Title>
+        <BannerWrapper  bgPhoto={makeImgPath(popularData?.results[0].backdrop_path || "")}>
+        <Title>{popularData?.results[0].title}</Title>
         <MoviRank>
             <FontAwesomeIcon icon={faMedal} style={{ color : "rgb(229, 9, 20)", paddingRight: 5}}/> 
             popular movies today
         </MoviRank>
         <AnimatePresence>
-        <Overview>{popularData?.results[1].overview}</Overview>
+        <Overview>{popularData?.results[0].overview}</Overview>
         <div style={{ display:"flex", justifyContent: "flex-start", position:"relative", top:20}}>
             <OverviewBtn>
             <FontAwesomeIcon icon={faPlay} style={{fontSize: 20, paddingRight:10}}/>
@@ -82,7 +82,7 @@ function Banner () {
         </div>
         <div style={{ display:"flex", justifyContent: "flex-start", position:"relative", top:-30, left: 170}}>
             <OverviewBtn 
-                onClick={()=> boxClick(popularData?.results[1].id!)}>
+                onClick={()=> boxClick(popularData?.results[0].id!)}>
             <FontAwesomeIcon icon={faCircleInfo}  style={{fontSize: 20, paddingRight:10}}/>
                 More Info
             </OverviewBtn> 

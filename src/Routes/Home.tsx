@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import { IGetMovieRank, IGetMoviesResult, getMovieDetail, getMovies, IMoiveDetail, getTopMovies, getCommingMovies, getPopularMovies, getSimilarMovies, IMoiveSimilar} from "../api";
+import { IGetMovieRank, IGetMoviesResult, getMovieDetail, getMovies, IMoiveDetail, getTopMovies, ISimilar,getCommingMovies, getPopularMovies, getSimilarMovies, getCredits,  ICredits} from "../api";
 import styled from "styled-components";
 import { makeImgPath } from "../utils";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
@@ -99,6 +99,7 @@ const Row = styled(motion.div)`
     grid-template-columns: repeat(6, 1fr);
     position: absolute;
     width: 100%;
+    gap:5px;
 `;
 
 const Info = styled(motion.div)`
@@ -127,8 +128,8 @@ const InfoTitle = styled.h2`
 const MoiveDetail = styled(motion.div)`
     z-index: 10;
     position: absolute;
-    width: 55vw;
-    height: 210vh;
+    width: 65vw;
+    height: 340vh;
     border-radius: 20px;
     overflow: hidden;
     left: 0;
@@ -206,29 +207,78 @@ const OverLay = styled(motion.div)`
 `;
 
 
+const Actors = styled.div`
+    position: relative;
+    top: -420px;
+    left: 10px;
+    right: -10px;
+    display: flex;
+`;
+const ActorBox = styled.div`
+
+`;
+
+const ActorImg = styled.img`
+    width: 150px;
+    height: 150px;
+    border-radius: 5px;
+    position: relative;
+    top: -150px;
+    left: 40px;
+    padding-right: 20px;
+`
+
+const ActorName =  styled.p`
+    position: relative;
+    top: -130px;
+    left: 10px;
+    text-align: center;
+    color: ${(props)=> props.theme.white.darker};
+`;
+
+
 const Similar = styled.div`
     position: relative;
-    top: -550px;
+    top: -400px;
     left: 20px;
     right: -20px;
 `;
 
+const SimilarTitle = styled.h2`
+font-size: 17px;
+font-weight: bold;
+color: ${(props)=> props.theme.white.darker};
+text-align: center;
+`;
+
+const Similardate = styled.h2`
+font-size: 15px;
+color: rgb(229, 229, 229, 0.5);
+text-align: center;
+`;
+
+
+const SimilarRating = styled.h2`
+font-size: 15px;
+text-align: center;
+color: ${(props)=> props.theme.white.darker};
+`;
+
+
 
 const SimilarMovie = styled(motion.div)`
     display: grid;
-    grid-template-columns: repeat(3, 2fr);
-    row-gap: 10px;
+    grid-template-columns: repeat(4, 2fr);
+    row-gap: 5px;
     position: absolute;
     width: 100%;
-
-`;
+    `;
 
 const SimilarItem = styled(motion.div)`
-    background-color: white;
     color: black;
-    width: 250px;
-    height: 300px;
-    border-radius: 5px;
+    width: 200px;
+    height: 400px;
+    border-radius: 10px;
     &:first-child {
         transform-origin: center left;
     }
@@ -236,7 +286,13 @@ const SimilarItem = styled(motion.div)`
         transform-origin: center right;
     }
     cursor: pointer;
+    
+    `;
 
+const SimilarImg = styled.img`
+    width: 200px;
+    height: 300px;
+    border-radius: 5px;
 `;
 
 const TopRank = styled.div`
@@ -252,6 +308,7 @@ const Rank = styled(motion.div)`
     grid-template-columns: repeat(5, 1fr);
     position: absolute;
     width: 100%;
+    
 `;
   
 const RankItem = styled(motion.div)<{bgPhoto?:string}>`
@@ -295,6 +352,7 @@ const RankNum = styled.h1`
     left: -90px;
     z-index: 0;
     top: -190px;
+   
 `;
 
 
@@ -307,7 +365,7 @@ const Comming = styled.div`
 
 
 const CBox = styled(motion.div)<{bgPhoto:string}>`
-    background-color: white;
+    background-color: rgb(255, 255, 255);
     background-image: url(${(props)=> props.bgPhoto});
     background-size: cover;
     background-position: center center;
@@ -328,6 +386,7 @@ const CRow = styled(motion.div)`
     grid-template-columns: repeat(6, 1fr);
     position: absolute;
     width: 100%;
+    gap:5px;
 `;
 
 const Popular = styled.div`
@@ -360,6 +419,7 @@ const PRow = styled(motion.div)`
     grid-template-columns: repeat(6, 1fr);
     position: absolute;
     width: 100%;
+    gap:5px;
 `;
 
 
@@ -418,8 +478,10 @@ function Home() {
     const { isLoading : commLoading, data: commData} = useQuery<IGetMovieRank>(["movies", "comming"], getCommingMovies);
     const { isLoading : detailLoading, data: detailData} = useQuery<IMoiveDetail>(["movies", id], ()=> getMovieDetail(id!));
     const { isLoading : popularLoading , data: popularData } = useQuery<IGetMoviesResult>(["movies", "popular"], getPopularMovies);
-    const { isLoading : similarLoading , data: similarData } = useQuery<IMoiveSimilar>(["movies", id], ()=> getSimilarMovies(id!));
-    const isLoading = nowPlayingLoading || topRatedLoading || commLoading ||  detailLoading || popularLoading || similarLoading;
+    const { isLoading : similarLoading , data: similarData } = useQuery<ISimilar>(["similer", id], ()=> getSimilarMovies(id!));
+    console.log(similarData);
+    const { isLoading : creditLoading , data: creditData } = useQuery<ICredits>(["actor", id], ()=> getCredits(id!));
+    const isLoading = nowPlayingLoading || topRatedLoading || commLoading ||  detailLoading || popularLoading || similarLoading || creditLoading;
     const [index , setIndex] = useState(0);
     const incraseIndex = () => {
     if (playingData) {
@@ -452,8 +514,8 @@ function Home() {
     const PLAY =  moviePathMath?.params.id && playingData?.results.find((movie) => movie.id  + ""  === moviePathMath.params.id);
     const TOP =  moviePathMath?.params.id && topData?.results.find((movie) => movie.id  + "" === moviePathMath.params.id);   
     const COME =  moviePathMath?.params.id && commData?.results.find((movie) => movie.id  + "" === moviePathMath.params.id);   
-    const POPULAR = moviePathMath?.params.id && popularData?.results.find((movie) => movie.id  + "" === moviePathMath.params.id);   
-    const movieClick = PLAY || TOP || COME || POPULAR;   
+    const POPULAR = moviePathMath?.params.id && popularData?.results.find((movie) => movie.id  + "" === moviePathMath.params.id);    
+    const movieClick = PLAY || TOP || COME || POPULAR ;  
     return (
         <Wrapper>
             {isLoading ? ( 
@@ -523,7 +585,7 @@ function Home() {
                             <DetailCover 
                                 style={{
                                     backgroundImage: `linear-gradient(to top, black, transparent), url(${makeImgPath(
-                                        movieClick.backdrop_path, 
+                                       movieClick.backdrop_path,
                                         "w500"
                                     )})`,
                                 }}
@@ -538,12 +600,31 @@ function Home() {
                             「 {detailData?.tagline} 」
                             </DatailTagLine>
                             <DatailOverLay>{movieClick.overview}</DatailOverLay>
-                            <HotSliderTitle style={{top:-620, textAlign:"center"}}>
-                            ━━━━━━━━━━━ Similar genre ━━━━━━━━━━━ 
+                            <HotSliderTitle style={{top:-620, textAlign:"left", left:35}}>
+                             Actors
+                            </HotSliderTitle>  
+                            <Actors key={index}>
+                                {creditData?.cast.slice(0,6).map((i)=> 
+                                <ActorBox>
+                                    <ActorImg src={`https://image.tmdb.org/t/p/w500${i?.profile_path}`}/>
+                                    <ActorName>{i.name}</ActorName>
+                                    <ActorName style={{ fontSize:13 , color:" rgb(229, 229, 229, 0.5)"}}> / {i.character}</ActorName>
+                                </ActorBox>
+                            )}    
+                            </Actors>
+                            <HotSliderTitle style={{top:-450, textAlign:"left", left:35}}>
+                             Similar Movies
                             </HotSliderTitle>
                             <Similar>
                             <SimilarMovie>
-                            <SimilarItem>{similarData?.results[0].genre_ids.length !== 0 ? "dddd" : null }</SimilarItem>
+                                {similarData?.results.slice(0,12).map((g)=> (
+                                    <SimilarItem key={g.id}>
+                                    <SimilarImg src={`https://image.tmdb.org/t/p/w500${g.poster_path}`} />
+                                    <SimilarTitle>{g.title}</SimilarTitle>
+                                    <Similardate>{g.release_date}</Similardate> 
+                                    <SimilarRating>⭐{g.popularity.toFixed(1)}</SimilarRating>
+                                </SimilarItem>
+                                ))}
                             </SimilarMovie>
                             </Similar>
                             </>
