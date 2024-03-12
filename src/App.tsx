@@ -3,6 +3,7 @@ import Home from "./Routes/Home";
 import Tv from "./Routes/Tv";
 import Search from "./Routes/Search";
 import Header from "./Componensts/Header";
+import Trailer from "./Routes/Trailer";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="movies/:id" element={<Home />} />
         <Route path="/tv" element={<Tv />} />
         <Route path="/search" element={<Search />} />
+        <Route path="movies/:id/t" element={<Trailer />} />
       </Routes>
     </BrowserRouter>
   );

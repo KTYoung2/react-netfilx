@@ -1,11 +1,14 @@
 import styled from "styled-components";
+import React from "react";
 import { useQuery } from "react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { makeImgPath } from "../utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {  faPlay , faCircleInfo, faMedal } from "@fortawesome/free-solid-svg-icons";
-import {  getPopularMovies, IGetMoviesResult } from "../api";
+import {  getPopularMovies, getVideo, IGetMoviesResult} from "../api";
+
+
 
 const BannerWrapper  = styled.div<{ bgPhoto : string }>`
     height: 100vh;
@@ -64,8 +67,12 @@ function Banner () {
     const boxClick = (movieId:number) => {
         movieHistory(`/movies/${movieId}`);
     };
-
+    const navigate = useNavigate();
+    const onClickTrailer = (movieId : any) => {
+        navigate(`/movies/trailer/${movieId.id}`);
+      };
     return (
+        <React.Fragment>
         <BannerWrapper  bgPhoto={makeImgPath(popularData?.results[0].backdrop_path || "")}>
         <Title>{popularData?.results[0].title}</Title>
         <MoviRank>
@@ -75,7 +82,7 @@ function Banner () {
         <AnimatePresence>
         <Overview>{popularData?.results[0].overview}</Overview>
         <div style={{ display:"flex", justifyContent: "flex-start", position:"relative", top:20}}>
-            <OverviewBtn>
+            <OverviewBtn  onClick={onClickTrailer}>
             <FontAwesomeIcon icon={faPlay} style={{fontSize: 20, paddingRight:10}}/>
                 Play
             </OverviewBtn>
@@ -89,8 +96,9 @@ function Banner () {
         </div>
         </AnimatePresence>
     </BannerWrapper>
+    </React.Fragment>
 );
-}
+ }
 
 
 export default Banner;

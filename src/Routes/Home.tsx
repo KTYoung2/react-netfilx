@@ -1,7 +1,7 @@
 import { useQuery } from "react-query";
-import { IGetMovieRank, IGetMoviesResult, getMovieDetail, getMovies, IMoiveDetail, getTopMovies, ISimilar,getCommingMovies, getPopularMovies, getSimilarMovies, getCredits,  ICredits} from "../api";
+import { IGetMovieRank, IGetMoviesResult, getMovieDetail, getMovies, IMoiveDetail, getTopMovies, ISimilar,getCommingMovies, getPopularMovies, getSimilarMovies, getCredits,  ICredits, getVideo, ITrailer} from "../api";
 import styled from "styled-components";
-import { makeImgPath } from "../utils";
+import { makeImgPath} from "../utils";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { useState } from "react";
 import { useMatch, useNavigate, useParams } from "react-router-dom";
@@ -479,10 +479,10 @@ function Home() {
     const { isLoading : detailLoading, data: detailData} = useQuery<IMoiveDetail>(["movies", id], ()=> getMovieDetail(id!));
     const { isLoading : popularLoading , data: popularData } = useQuery<IGetMoviesResult>(["movies", "popular"], getPopularMovies);
     const { isLoading : similarLoading , data: similarData } = useQuery<ISimilar>(["similer", id], ()=> getSimilarMovies(id!));
-    console.log(similarData);
     const { isLoading : creditLoading , data: creditData } = useQuery<ICredits>(["actor", id], ()=> getCredits(id!));
-    const isLoading = nowPlayingLoading || topRatedLoading || commLoading ||  detailLoading || popularLoading || similarLoading || creditLoading;
+    const isLoading = nowPlayingLoading || topRatedLoading || commLoading ||  detailLoading || popularLoading || similarLoading || creditLoading ;
     const [index , setIndex] = useState(0);
+    
     const incraseIndex = () => {
     if (playingData) {
         if(leaving) return;
@@ -529,7 +529,7 @@ function Home() {
                         <SliderLeftBtn onClick={prevIndex}>
                             <FontAwesomeIcon icon={faChevronLeft} />
                         </SliderLeftBtn>
-                            <Row
+                            <Row 
                                 variants={rowVariants} 
                                 initial="hidden" 
                                 animate="visible" 

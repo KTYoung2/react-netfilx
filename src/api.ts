@@ -77,6 +77,17 @@ export interface ISimilar {
   ],
 }
 
+interface Trailer {
+  key: string;
+  site: string;
+  id:string;
+}
+
+export interface ITrailer {
+  id: number;
+  results: Trailer[];
+}
+
 
 
 export function getMovies(){
@@ -112,5 +123,10 @@ export function getSimilarMovies( id : string ){
 
 export function getCredits (id:string) {
   return fetch(`${BASE_PATH}/movie/${id}/credits?api_key=${API_KEY}`).then(
+    (responce)=>responce.json());
+}
+
+export function getVideo (id:string) {
+  return fetch(`${BASE_PATH}/movie/${id}/videos?api_key=${API_KEY}`).then(
     (responce)=>responce.json());
 }
