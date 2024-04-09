@@ -88,6 +88,29 @@ export interface ITrailer {
   results: Trailer[];
 }
 
+export interface IMedia {
+  backdrop_path: string;
+  genre_ids: number[];
+  id: number;
+  original_language: string;
+  overview: string;
+  popularity: number;
+  poster_path: string;
+  vote_average: number;
+  vote_count: number;
+  title: string;
+  original_title: string;
+  media_type: string;
+  first_air_date?: string;
+  name?: string;
+  origin_country?: string[];
+  original_name?: string;
+  adult?: boolean;
+  release_date?: string;
+  video?: boolean;
+  keyword :string
+}
+
 
 
 export function getMovies(){
@@ -128,5 +151,10 @@ export function getCredits (id:string) {
 
 export function getVideo (id:string) {
   return fetch(`${BASE_PATH}/movie/${id}/videos?api_key=${API_KEY}`).then(
+    (responce)=>responce.json());
+}
+
+export function getSearch ( keyword :string) {
+  return fetch( `${BASE_PATH}/search/movie?query=${keyword}&api_key=${API_KEY}`).then(
     (responce)=>responce.json());
 }

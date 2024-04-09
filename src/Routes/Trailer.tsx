@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { ITrailer, getVideo } from "../api";
 import ReactPlayer from "react-player";
 import { makeVideoPath } from "../utils";
@@ -7,7 +7,7 @@ import { makeVideoPath } from "../utils";
 
 function Trailer (){
     const { id } = useParams();
-    const { isLoading , data } = useQuery<ITrailer>("video" , ()=> getVideo(id!));
+    const { isLoading , data } = useQuery<ITrailer>("video" , ()=> getVideo(Number(id) as any));
     console.log(data);
     return (
         <>
@@ -20,13 +20,13 @@ function Trailer (){
                     makeVideoPath(data?.results[0].key || "") ||
                     "https://www.youtube.com/watch?v=NeKdhpmVI64"
                   }
-                  volume={0}
+                  volume={1}
                   controls={false}
                   playing={true}
                   muted={false}
                   loop={true}
-                  width="90%"
-                  height="90%"
+                  width="100%"
+                  height="100%"
                  />
             </div>
           )}

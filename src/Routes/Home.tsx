@@ -8,6 +8,7 @@ import { useMatch, useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleXmark , faCircleInfo,faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import Banner from "../Componensts/Banner";
+import Trailer from "./Trailer";
 
 const Wrapper = styled.div`
     background-color: black;
@@ -149,13 +150,31 @@ const DetailCover = styled.div`
 const DetailTitle = styled.h2`
     padding: 10px;
     position: relative;
-    top: -80px;
+    top: -110px;
     left: 350px;
     font-size: 30px;
     font-weight: bold;
     color: ${(props)=> props.theme.white.darker};
     text-shadow: 2px 2px 4px rgb(0, 0, 0, 0.5);
 `;
+
+const TrailerBtn = styled.button`
+    padding: 10px;
+    position: relative;
+    top: 10px;
+    left: 350px;
+    border: none;
+    border: 1px solid rgb(229, 9, 20);
+    width: 100px;
+    height: 40px;
+    background-color:  rgb(229, 9, 20);
+    border-radius: 3px;
+    font-size: 17px;
+    font-weight: bolder;
+    color: ${(props)=> props.theme.white.darker};
+    cursor: pointer;
+`;
+
 
 const DetailImg = styled.img`
     width: 300px;
@@ -175,12 +194,23 @@ const  DatailDate = styled.p`
     padding-top: 5px;
 `;
 
+const DatailGenres = styled.ul`
+    display: flex;
+    padding-right: 20px;
+    position: relative; 
+    top: -430px;
+    left: 350px;
+    li {
+      
+    }
+`;
+
 const  DatailTagLine = styled.h3`
     color: ${(props)=> props.theme.white.darker};
     position: relative;
     font-size: 20px;
     font-weight: 500;
-    top: -400px;
+    top: -370px;
     display: flex;
     justify-content: center;
     left: 70px;
@@ -190,7 +220,7 @@ const DatailOverLay = styled.p`
     color: ${(props)=> props.theme.white.darker};
     position: relative;
     font-size: 15px;
-    top: -370px;
+    top: -340px;
     left: 350px;
     text-align: justify;
     width: 450px;
@@ -504,12 +534,18 @@ function Home() {
 
     const [leaving , setLeaving] = useState(false);
     const toggleLeaving = () => setLeaving((prev)=> !prev);
+    
     const boxClick = (movieId:number) => {
         movieHistory(`/movies/${movieId}`);
     }
     const titleClick = (movieId:any) => {
         movieHistory(`/movies/${movieId}`);
     }
+
+    const videoClick = (movieId:number) => {
+        movieHistory(`/movies/trailer/${movieId}`);
+    }
+
     const overlayClick = () => movieHistory("/");
     const PLAY =  moviePathMath?.params.id && playingData?.results.find((movie) => movie.id  + ""  === moviePathMath.params.id);
     const TOP =  moviePathMath?.params.id && topData?.results.find((movie) => movie.id  + "" === moviePathMath.params.id);   
@@ -554,7 +590,6 @@ function Home() {
                                     <Info  
                                         variants={infoVariants}>
                                             <FontAwesomeIcon icon={faCircleInfo} style={{position: "absolute", top: -118, left: 220, fontSize: 20, cursor: "pointer"}}/>
-                                        <InfoTitle>{movie.title}</InfoTitle>
                                         </Info>
                                     </ Box>
                                     ))}
@@ -590,12 +625,13 @@ function Home() {
                                     )})`,
                                 }}
                             />
+                            <TrailerBtn onClick={()=> videoClick(movieClick.id)}>Trailer</TrailerBtn>
                             <DetailTitle>{movieClick.title}</DetailTitle>
                             <DetailImg src={`https://image.tmdb.org/t/p/w500${detailData?.poster_path}`}/>
                             <DatailDate>
                             ·{detailData?.release_date} </DatailDate>
                             <DatailDate> ·{detailData?.runtime} minute </DatailDate>
-                            <DatailDate> {detailData?.genres.map((g)=> (<p>·{g.name}</p>))}</DatailDate>
+                            <DatailGenres> {detailData?.genres.map((g)=> ( <li>· {g.name}</li>))}</DatailGenres>
                             <DatailTagLine> 
                             「 {detailData?.tagline} 」
                             </DatailTagLine>
@@ -701,7 +737,6 @@ function Home() {
                                     <Info  
                                         variants={infoVariants}>
                                             <FontAwesomeIcon icon={faCircleInfo} style={{position: "absolute", top: -118, left: 220, fontSize: 20, cursor: "pointer"}}/>
-                                        <InfoTitle>{movie.title}</InfoTitle>
                                         </Info>
                                     </PBox>
                                     ))}
@@ -739,7 +774,6 @@ function Home() {
                                     <Info  
                                         variants={infoVariants}>
                                             <FontAwesomeIcon icon={faCircleInfo} style={{position: "absolute", top: -118, left: 220, fontSize: 20, cursor: "pointer"}}/>
-                                        <InfoTitle>{movie.title}</InfoTitle>
                                         </Info>
                                     </CBox>
                                     ))}

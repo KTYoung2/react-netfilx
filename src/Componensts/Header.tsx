@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { motion, useAnimation, useMotionValueEvent, useScroll } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { useMatch } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { ReactElement, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 
@@ -101,12 +101,11 @@ const navVariants = {
 }
 
 
-interface IForm {
-  keyword:string;
-}
+
 
 function Header(){
   const [searchOpen , setSearchOpen ] = useState(false);
+  const [keyWord, setKeyword ] = useState("");
   const homeMatch = useMatch("/");
   const tvMatch = useMatch("tv");
   const inputAimation = useAnimation();
@@ -132,10 +131,14 @@ function Header(){
     }
   });
   const navigate = useNavigate();
-  const { register, handleSubmit } = useForm<IForm>();
-  const onValid = (data:IForm) => {
-    navigate(`/search?keyword=${data.keyword}`)
-  };
+
+  const searchKeyword = (e : React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if( keyWord.trim() !== "" ) {
+      navigate(`/search?keyword=${keyWord || ''}`);
+    }
+    setKeyword('');
+  }
     return (
         <Nav 
           variants={navVariants}
@@ -168,7 +171,7 @@ function Header(){
           </Items>
         </Col>
         <Col>
-          <Search onSubmit={handleSubmit(onValid)}>
+          <Search onSubmit={(e)=>searchKeyword(e)}>
             <motion.svg
               onClick={toggleSearch}
               animate={{x: searchOpen ? -210 : 0}}
@@ -184,10 +187,11 @@ function Header(){
               ></path>
             </motion.svg>
             <Input 
-              {...register("keyword", {required : true, minLength: 2 })}
-              transition={{type : "linea"}}
-              animate={ inputAimation}
-              placeholder="Search for Movie ..." />
+              type="search"
+              placeholder="Search for Movie ..." 
+              value={keyWord}
+              onChange={(e) => setKeyword(e.currentTarget.value)}
+              />
           </Search>
       </Col>
     </Nav>

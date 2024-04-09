@@ -1,12 +1,14 @@
 import styled from "styled-components";
 import React from "react";
 import { useQuery } from "react-query";
-import { useNavigate, useParams } from "react-router-dom";
+import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { makeImgPath } from "../utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {  faPlay , faCircleInfo, faMedal } from "@fortawesome/free-solid-svg-icons";
 import {  getPopularMovies, getVideo, IGetMoviesResult} from "../api";
+import { Link } from "react-router-dom";
+import Trailer from "../Routes/Trailer";
 
 
 
@@ -62,15 +64,12 @@ const OverviewBtn = styled(motion.button)`
 
 
 function Banner () {
+    const { id } = useParams();
     const { isLoading : popularLoading , data: popularData } = useQuery<IGetMoviesResult>(["movies", "popular"], getPopularMovies);
     const movieHistory = useNavigate();
     const boxClick = (movieId:number) => {
         movieHistory(`/movies/${movieId}`);
     };
-    const navigate = useNavigate();
-    const onClickTrailer = (movieId : any) => {
-        navigate(`/movies/trailer/${movieId.id}`);
-      };
     return (
         <React.Fragment>
         <BannerWrapper  bgPhoto={makeImgPath(popularData?.results[0].backdrop_path || "")}>
@@ -82,7 +81,7 @@ function Banner () {
         <AnimatePresence>
         <Overview>{popularData?.results[0].overview}</Overview>
         <div style={{ display:"flex", justifyContent: "flex-start", position:"relative", top:20}}>
-            <OverviewBtn  onClick={onClickTrailer}>
+            <OverviewBtn>
             <FontAwesomeIcon icon={faPlay} style={{fontSize: 20, paddingRight:10}}/>
                 Play
             </OverviewBtn>
