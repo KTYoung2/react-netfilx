@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import { IGetMovieRank, IGetMoviesResult, getMovieDetail, getMovies, IMoiveDetail, getTopMovies, ISimilar,getCommingMovies, getPopularMovies, getSimilarMovies, getCredits,  ICredits, getVideo, ITrailer} from "../api";
+import { IGetMovieRank, IGetMoviesResult, getMovieDetail, getMovies, IMoiveDetail, getTopMovies, ISimilar,getCommingMovies, getPopularMovies, getSimilarMovies, getCredits,  ICredits, getVideo, ITrailer, IMedia} from "../api";
 import styled from "styled-components";
 import { makeImgPath} from "../utils";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
@@ -494,11 +494,14 @@ const infoVariants = {
     },
 };
 
-
+interface IModalProps {
+    movie: IMedia;
+    type: string;
+  }
 
 const offset = 6;
 
-function Home() {
+function Home( { movie, type }: any ) {
     const movieHistory = useNavigate();
     const moviePathMath = useMatch("/movies/:id"); 
     const { id } = useParams();
